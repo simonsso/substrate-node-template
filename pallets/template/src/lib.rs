@@ -38,7 +38,7 @@ pub mod pallet {
 	// https://docs.substrate.io/v3/runtime/storage#declaring-storage-items
 	// pub type Something<T> = StorageValue<_, u32 >;
 
-	pub(super) type SomeMap<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, u32 >;
+	pub type Something<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, u32>;
 
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/v3/runtime/events-and-errors
@@ -74,7 +74,7 @@ pub mod pallet {
 			let who = ensure_signed(origin)?;
 
 			// Update storage.
-			<Something<T>>::insert(who,something);
+			<Something<T>>::insert(who.clone(), something);
 
 			// Emit an event.
 			Self::deposit_event(Event::SomethingStored(something, who));
@@ -88,14 +88,14 @@ pub mod pallet {
 			let who = ensure_signed(origin)?;
 
 			// Read a value from storage.
-			match <Something<T>>::get(who) {
+			match <Something<T>>::get(who.clone()) {
 				// Return an error if the value has not been set.
 				None => Err(Error::<T>::NoneValue)?,
 				Some(old) => {
 					// Increment the value read from storage; will error in the event of overflow.
 					let new = old.checked_add(1).ok_or(Error::<T>::StorageOverflow)?;
 					// Update the value in storage with the incremented result.
-					<Something<T>>::insert(who,new);
+					<Something<T>>::insert(who, new);
 					Ok(())
 				},
 			}
